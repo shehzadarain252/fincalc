@@ -1,0 +1,20 @@
+# Android / Gradle
+*.iml
+.gradle
+/local.properties
+/.idea
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+# Android Studio
+*.apk
+*.aab
+# App secrets — NEVER commit these (FinCalc has no backend keys by design;
+# the Firebase google-services.json IS committed: it is a public client
+# config, not a secret, and CI needs it to build)
+# local.properties is gitignored above.
+# Firebase + AdMob IDs live in app code (AdMobManager.kt / AndroidManifest.xml)
+# and in app/google-services.json — never copy them into docs or chat.
