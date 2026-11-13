@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "390694440360",
+    "project_id": "fincalc-26b65",
+    "storage_bucket": "fincalc-26b65.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:390694440360:android:42eb6eb087c2039669619d",
+        "android_client_info": {
+          "package_name": "com.fincalc.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD8vwnLL2mBNtXQrgBXOgVeFIWqBzPMGIo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
