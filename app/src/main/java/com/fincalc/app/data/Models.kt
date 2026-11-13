@@ -3,19 +3,19 @@ package com.fincalc.app.data
 /**
  * Core data model for FinCalc.
  *
- * Every calculator in the app (60 total) is declared as a [CalculatorDef]:
+ * Every calculator in the app (90 total) is declared as a [CalculatorDef]:
  * a list of typed inputs plus a pure compute function. One generic
- * CalculatorScreen renders any definition, so all 60 tools share the same
+ * CalculatorScreen renders any definition, so all 90 tools share the same
  * validation, result, copy/share/save/PDF and favourite behaviour.
  */
 
 enum class Category(val id: String, val title: String, val subtitle: String) {
-    LOAN("loan", "Loan & Mortgage Calculators", "10 Tools"),
-    TAX("tax", "Tax & Salary Calculators", "10 Tools"),
-    INVESTMENT("investment", "Investment Calculators", "10 Tools"),
-    PERSONAL("personal", "Personal Finance Calculators", "10 Tools"),
-    BUSINESS("business", "Business Calculators", "10 Tools"),
-    DAILY("daily", "Currency & Daily Tools", "10 Tools")
+    LOAN("loan", "Loan & Mortgage Calculators", "15 Tools"),
+    TAX("tax", "Tax & Salary Calculators", "15 Tools"),
+    INVESTMENT("investment", "Investment Calculators", "15 Tools"),
+    PERSONAL("personal", "Personal Finance Calculators", "15 Tools"),
+    BUSINESS("business", "Business Calculators", "15 Tools"),
+    DAILY("daily", "Currency & Daily Tools", "15 Tools")
 }
 
 enum class InputType { NUMBER, SELECT, TEXT, DATE }

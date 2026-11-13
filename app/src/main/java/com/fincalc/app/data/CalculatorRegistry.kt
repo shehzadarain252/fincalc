@@ -1,11 +1,12 @@
 package com.fincalc.app.data
 
-/** Single registry for all 60 calculators. */
+/** Single registry for all 90 calculators (60 from the master prompt + 30 extra). */
 object CalculatorRegistry {
 
     val all: List<CalculatorDef> =
         CalculatorsLoan.all + CalculatorsTax.all + CalculatorsInvest.all +
-            CalculatorsPersonal.all + CalculatorsBusiness.all + CalculatorsDaily.all
+            CalculatorsPersonal.all + CalculatorsBusiness.all + CalculatorsDaily.all +
+            CalculatorsExtra.all
 
     fun byId(id: String): CalculatorDef? = all.find { it.id == id }
 
