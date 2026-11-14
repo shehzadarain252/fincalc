@@ -39,6 +39,15 @@ jobs:
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          # 2026-11-14 fix: the action's default package list includes the
+          # obsolete "tools" package, which no longer exists in
+          # cmdline-tools 16.0 (all Build APK runs failed in this step with
+          # "Failed to find package 'tools'"). Pin cmdline-tools to 12.0
+          # (which still ships it) and install only platform-tools
+          # explicitly — the platform/build-tools install is the next step.
+          cmdline-tools-version: "12.0"
+          packages: platform-tools
 
       - name: Install Android platform 34
         run: |
