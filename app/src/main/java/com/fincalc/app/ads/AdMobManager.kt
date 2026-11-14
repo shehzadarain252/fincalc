@@ -2,7 +2,6 @@ package com.fincalc.app.ads
 
 import android.app.Activity
 import android.content.Context
-import com.fincalc.app.BuildConfig
 import com.fincalc.app.data.SettingsStore
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
@@ -23,9 +22,10 @@ import kotlinx.coroutines.launch
 /**
  * Google AdMob — exact schedule from the master prompt (§11).
  *
- * - NO banner ads (the calculator interface stays clean).
+ * - BANNER (added 2026-11-14 at the user's request): anchored adaptive
+ *   banner above the bottom navigation on the tab screens.
  * - NO native ads (no Native Ad Unit ID was supplied; never reuse the
- *   interstitial/rewarded IDs for native).
+ *   interstitial/rewarded/banner IDs for native).
  * - INTERSTITIAL: only after FIVE completed calculations, shown at a natural
  *   navigation transition (never while the user is entering numbers or
  *   before a result is displayed). After a shown ad: counter resets,
@@ -35,8 +35,9 @@ import kotlinx.coroutines.launch
  *   (PDF export / advanced report). Reward is given ONLY after the SDK
  *   confirms successful completion.
  * - Ad Unit IDs live in this one central file. Never show them in the UI.
- * - In debug builds, Google's official test ad units are used instead of
- *   the production IDs (never use live ads for repeated testing).
+ * - LIVE ads in all builds (user request, 2026-11-14): the production
+ *   interstitial/rewarded IDs are used even in debug builds. Do NOT tap
+ *   your own live ads while testing — AdMob treats it as invalid traffic.
  *
  * App ID note: the AndroidManifest uses the App ID candidate that is NOT
  * the one registered for EduMind AI. The user must confirm in AdMob that
@@ -49,17 +50,20 @@ object AdMobManager {
     private const val INTERSTITIAL_ID = "ca-app-pub-4510714397469784/7398560475"
     private const val REWARDED_ID = "ca-app-pub-4510714397469784/2417696533"
 
+    // Banner Ad Unit ID (supplied by the user, 2026-11-14).
+    private const val BANNER_ID = "ca-app-pub-4510714397469784/1975439878"
+
+    /** Banner unit for the BannerAd composable. */
+    val bannerAdUnitId: String get() = BANNER_ID
+
     // Reference only: the second App ID candidate from the master prompt.
     // It is NOT used anywhere — see the manifest note.
     @Suppress("unused")
     private const val OTHER_APP_ID_CANDIDATE = "ca-app-pub-4510714397469784~5758175741"
 
-    // Official Google test ad units (debug builds only).
-    private const val TEST_INTERSTITIAL_ID = "ca-app-pub-3940256099942544/1033173712"
-    private const val TEST_REWARDED_ID = "ca-app-pub-3940256099942544/5224354917"
-
-    private val interstitialId get() = if (BuildConfig.DEBUG) TEST_INTERSTITIAL_ID else INTERSTITIAL_ID
-    private val rewardedId get() = if (BuildConfig.DEBUG) TEST_REWARDED_ID else REWARDED_ID
+    // LIVE ads in every build (user request 2026-11-14) — no test units.
+    private val interstitialId get() = INTERSTITIAL_ID
+    private val rewardedId get() = REWARDED_ID
 
     private const val CALCS_BEFORE_AD = 5
     private const val COOLDOWN_MS = 3 * 60 * 1000L
