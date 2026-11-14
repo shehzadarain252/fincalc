@@ -1,10 +1,10 @@
 # FinCalc — Smart Financial Calculators for Everyone
 
-A complete, professional Android finance calculator app with **60 working calculators**
+A complete, professional Android finance calculator app with **90 working calculators**
 across 6 categories. No login required. All calculations work offline (except live
 currency rates).
 
-## Categories (10 calculators each)
+## Categories (15 calculators each)
 
 1. **Loan & Mortgage** — Personal Loan, Home Loan, Mortgage, Car Loan, EMI,
    Loan Interest, Loan Payoff, Debt-to-Income, Loan Comparison, Amortization
