@@ -41,7 +41,7 @@ import com.fincalc.app.data.SettingsStore
 import kotlinx.coroutines.launch
 
 /** Support contact for FinCalc — the user's own account email (changeable). */
-const val SUPPORT_EMAIL = "shehzadarain261@gmail.com"
+const val FEEDBACK_FORM_URL = "https://forms.gle/fSNsV91J5gkDyFMx7"
 
 @Composable
 fun SettingsScreen(navController: NavController, dao: FinCalcDao, store: SettingsStore) {
@@ -106,11 +106,8 @@ fun SettingsScreen(navController: NavController, dao: FinCalcDao, store: Setting
         Text("About", fontSize = 13.sp, fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary)
         RowItem("About App", "Version 1.0.0", onClick = { navController.navigate("about") })
-        RowItem("Contact Support", SUPPORT_EMAIL, onClick = {
-            val intent = Intent(Intent.ACTION_SENDTO).apply {
-                data = Uri.parse("mailto:$SUPPORT_EMAIL")
-                putExtra(Intent.EXTRA_SUBJECT, "FinCalc Support")
-            }
+        RowItem("Contact Support", "Send feedback", onClick = {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(FEEDBACK_FORM_URL))
             context.startActivity(intent)
         })
         Spacer(Modifier.height(24.dp))
