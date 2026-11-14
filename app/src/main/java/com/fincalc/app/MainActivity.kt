@@ -59,6 +59,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.fincalc.app.ads.AdMobManager
+import com.fincalc.app.ads.BannerAd
 import com.fincalc.app.data.Category
 import com.fincalc.app.data.FinCalcDatabase
 import com.fincalc.app.data.SettingsStore
@@ -225,7 +226,9 @@ fun FinCalcNav(store: SettingsStore, dao: com.fincalc.app.data.FinCalcDao) {
             },
             bottomBar = {
                 if (showBottomBar) {
-                    NavigationBar {
+                    Column {
+                        BannerAd()
+                        NavigationBar {
                         val tabs = listOf(
                             "Home" to "home" to Icons.Filled.Home,
                             "Favorites" to "favorites" to Icons.Filled.Favorite,
@@ -246,6 +249,7 @@ fun FinCalcNav(store: SettingsStore, dao: com.fincalc.app.data.FinCalcDao) {
                                 label = { Text(label) }
                             )
                         }
+                    }
                     }
                 }
             }
