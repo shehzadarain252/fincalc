@@ -96,7 +96,7 @@ You can clear all locally stored data in Settings → Clear App Data, and change
 8. Changes
 If this policy changes, the new version will be shown in the app.
 
-Contact: $SUPPORT_EMAIL"""
+Contact: $FEEDBACK_FORM_URL"""
 
 private const val TERMS_TEXT = """Last updated: November 2026
 
@@ -124,7 +124,7 @@ To the maximum extent allowed by law, FinCalc and its developer are not liable f
 8. Changes
 Features, formulas and these terms may change over time. Continued use of the app after a change means you accept the updated terms.
 
-Contact: $SUPPORT_EMAIL"""
+Contact: $FEEDBACK_FORM_URL"""
 
 private const val DISCLAIMER_TEXT = """Financial Disclaimer
 
@@ -156,17 +156,14 @@ fun ContactScreen() {
             modifier = Modifier.padding(top = 12.dp, bottom = 8.dp))
         Text(
             "Questions, suggestions or a calculator that looks wrong? " +
-                "Send us an email — we read every message.\n\nEmail: $SUPPORT_EMAIL",
+                "Fill in the feedback form — we read every message.",
             fontSize = 14.sp, lineHeight = 21.sp
         )
         Spacer(Modifier.height(16.dp))
         Button(onClick = {
-            val intent = Intent(Intent.ACTION_SENDTO).apply {
-                data = Uri.parse("mailto:$SUPPORT_EMAIL")
-                putExtra(Intent.EXTRA_SUBJECT, "FinCalc — Feedback")
-            }
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(FEEDBACK_FORM_URL))
             context.startActivity(intent)
-        }) { Text("Email Support") }
+        }) { Text("Open Feedback Form") }
         Spacer(Modifier.height(24.dp))
     }
 }
