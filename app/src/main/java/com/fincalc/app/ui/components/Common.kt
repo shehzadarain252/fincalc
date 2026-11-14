@@ -122,7 +122,7 @@ fun InputField(input: CalcInput, value: String, onChange: (String) -> Unit) {
 // ---------- Buttons ----------
 
 @Composable
-fun PrimaryButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun PrimaryButton(text: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
     Button(
         onClick = onClick,
         modifier = modifier.fillMaxWidth().height(52.dp),
