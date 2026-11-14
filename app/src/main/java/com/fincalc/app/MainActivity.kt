@@ -10,10 +10,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.PrivacyTip
 import androidx.compose.material.icons.filled.Settings
@@ -200,6 +202,13 @@ fun FinCalcNav(store: SettingsStore, dao: com.fincalc.app.data.FinCalcDao) {
                     },
                     actions = {
                         if (isHome) {
+                            // Dark/Light toggle on the home dashboard (master prompt §2).
+                            IconButton(onClick = { scope.launch { store.setDarkMode(!darkMode) } }) {
+                                Icon(
+                                    if (darkMode) Icons.Filled.LightMode else Icons.Filled.DarkMode,
+                                    contentDescription = "Toggle dark mode"
+                                )
+                            }
                             IconButton(onClick = { navController.navigate("settings") }) {
                                 Icon(Icons.Filled.Settings, contentDescription = "Settings")
                             }
