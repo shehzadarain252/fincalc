@@ -158,7 +158,8 @@ fun FinCalcNav(store: SettingsStore, dao: com.fincalc.app.data.FinCalcDao) {
                         "Contact Us" to "contact" to Icons.Filled.Mail,
                         "FAQ" to "faq" to Icons.Filled.Help
                     )
-                    items.forEach { (label to dest) to icon ->
+                    items.forEach { (labelDest, icon) ->
+                        val (label, dest) = labelDest
                         NavigationDrawerItem(
                             label = { Text(label) },
                             icon = { Icon(icon, contentDescription = null) },
@@ -231,7 +232,8 @@ fun FinCalcNav(store: SettingsStore, dao: com.fincalc.app.data.FinCalcDao) {
                             "History" to "history" to Icons.Filled.History,
                             "Settings" to "settings" to Icons.Filled.Settings
                         )
-                        tabs.forEach { (label to dest) to icon ->
+                        tabs.forEach { (labelDest, icon) ->
+                            val (label, dest) = labelDest
                             NavigationBarItem(
                                 selected = route == dest,
                                 onClick = {
