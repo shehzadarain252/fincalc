@@ -31,7 +31,8 @@ currency rates).
   2024-40 (2025); every tax result is labelled an estimate
 - AdMob: interstitial after every 5th completed calculation (natural transition,
   3-minute cooldown, max 3 per 30 minutes); optional rewarded ad unlocks PDF
-  export; no banner ads, no native ads; UMP consent on first launch
+  export; banner above the bottom navigation on the tab screens; no native ads;
+  UMP consent on first launch (consent is determined before any ad loads)
 - Firebase Analytics + Crashlytics (free Spark plan)
 - About, Privacy Policy, Terms & Conditions, Financial Disclaimer, Contact, FAQ
 
