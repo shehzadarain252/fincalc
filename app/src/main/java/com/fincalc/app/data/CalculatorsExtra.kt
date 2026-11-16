@@ -287,15 +287,18 @@ object CalculatorsExtra {
                 val rate = if (shortTerm) {
                     TaxData.marginalRate(income, 2026, status)
                 } else {
+                    // 2026 IRS long-term thresholds (Rev. Proc. 2025-32, §4.03).
                     val t0 = when (status) {
-                        "Married Filing Jointly" -> 96_700.0
-                        "Head of Household" -> 64_750.0
-                        else -> 48_350.0
+                        "Married Filing Jointly" -> 98_900.0
+                        "Married Filing Separately" -> 49_450.0
+                        "Head of Household" -> 66_200.0
+                        else -> 49_450.0
                     }
                     val t20 = when (status) {
-                        "Married Filing Jointly" -> 600_050.0
-                        "Head of Household" -> 566_700.0
-                        else -> 533_400.0
+                        "Married Filing Jointly" -> 613_700.0
+                        "Married Filing Separately" -> 306_850.0
+                        "Head of Household" -> 579_600.0
+                        else -> 545_500.0
                     }
                     when {
                         income <= t0 -> 0.0
@@ -317,13 +320,13 @@ object CalculatorsExtra {
                         ResultRow("After-Tax Proceeds", Format.money(num(v, "sell") - tax, s, d))
                     ),
                     formula = if (shortTerm) "Short-term gains are taxed at your ordinary marginal rate."
-                    else "Long-term gains: 0% / 15% / 20% by income (2025 IRS thresholds).",
+                    else "Long-term gains: 0% / 15% / 20% by income (2026 IRS thresholds).",
                     breakdown = listOf(
                         if (shortTerm) "Held under 12 months, so the gain is taxed like regular income."
                         else "Held 12+ months, so the lower long-term rate applies."
                     ),
                     tip = "Holding an asset just past 12 months can cut the tax rate dramatically.",
-                    disclaimer = EXTRA_TAX_NOTE + " Long-term thresholds are the 2025 IRS figures."
+                    disclaimer = EXTRA_TAX_NOTE + " Long-term thresholds are the 2026 IRS figures (Rev. Proc. 2025-32)."
                 )
             }
         ),

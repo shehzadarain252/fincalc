@@ -43,7 +43,7 @@ data class ResultRow(
 data class ChartBar(val label: String, val value: Double)
 
 data class CalcResult(
-    /** Main headline value, e.g. "$466.01". */
+    /** Main headline value, e.g. "$489.15". */
     val title: String,
     /** Headline caption, e.g. "Monthly Payment". */
     val subtitle: String,
