@@ -23,23 +23,33 @@ android {
         }
     }
 
-    // Release signing (added 2026-11-16, v1.0.2): the release keystore is
-    // NEVER committed. CI creates keystore.properties from GitHub secrets
-    // (KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD) before
-    // building; local builds read the same file from the project root.
-    // Without keystore.properties the release build is left unsigned.
+    // Release signing (added 2026-11-16, v1.0.2; fixed 2026-11-16): the
+    // release keystore is NEVER committed. CI creates keystore.properties
+    // from GitHub secrets (KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS,
+    // KEY_PASSWORD) before building; local builds read the same file from
+    // the project root. Without keystore.properties the release build is
+    // left unsigned. NOTE: the file is read with plain Kotlin stdlib
+    // (readLines/associate) — java.util.Properties and
+    // java.io.FileInputStream do NOT resolve in this Kotlin DSL script
+    // (CI run #49 failed on them with "Unresolved reference").
     val keystorePropsFile = rootProject.file("keystore.properties")
-    val keystoreProps = java.util.Properties()
-    if (keystorePropsFile.exists()) {
-        keystoreProps.load(java.io.FileInputStream(keystorePropsFile))
+    val keystoreProps: Map<String, String> = if (keystorePropsFile.exists()) {
+        keystorePropsFile.readLines()
+            .filter { it.contains("=") }
+            .associate { line ->
+                val parts = line.split("=", limit = 2)
+                parts[0].trim() to parts[1].trim()
+            }
+    } else {
+        emptyMap()
     }
 
     signingConfigs {
         create("release") {
-            keystoreProps["storeFile"]?.let { storeFile = file(it.toString()) }
-            keystoreProps["storePassword"]?.let { storePassword = it.toString() }
-            keystoreProps["keyAlias"]?.let { keyAlias = it.toString() }
-            keystoreProps["keyPassword"]?.let { keyPassword = it.toString() }
+            keystoreProps["storeFile"]?.let { storeFile = file(it) }
+            keystoreProps["storePassword"]?.let { storePassword = it }
+            keystoreProps["keyAlias"]?.let { keyAlias = it }
+            keystoreProps["keyPassword"]?.let { keyPassword = it }
         }
     }
 
