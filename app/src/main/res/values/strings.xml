@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">FinCalc</string>
+    <string name="app_name">Pro FinCalc</string>
     <string name="app_tagline">Smart Financial Calculators for Everyone</string>
     <string name="app_description">Calculate. Plan. Grow.</string>
 </resources>
