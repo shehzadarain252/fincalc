@@ -1,4 +1,4 @@
-# FinCalc — GitHub Actions cloud build (debug APK)
+# Pro FinCalc — GitHub Actions cloud build (SIGNED RELEASE APK)
 #
 # Same pattern as the EduMind AI workflow (proven): this project has NO
 # gradlew / gradlew.bat and NO gradle-wrapper.jar, so "./gradlew
@@ -7,15 +7,22 @@
 # ./gradlew unless the wrapper scripts + jar are added.
 #
 # How to use (after signing in to GitHub as shehzadarain252):
-#   1. Push this whole project to a new GitHub repo (see .gitignore).
-#   2. GitHub > repo > Actions > "Build APK" > Run workflow (or push to main).
-#   3. When the run finishes, download the "fincalc-debug-apk" artifact
-#      (app-debug.apk) and install it on the phone.
+#   1. Push this whole project to the GitHub repo (see .gitignore).
+#   2. GitHub > repo > Settings > Secrets and variables > Actions: set
+#      KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD
+#      (values are in keystore/credentials.txt on the build machine —
+#      NEVER commit that file or the keystore itself).
+#   3. GitHub > repo > Actions > "Build APK" > Run workflow (or push to main).
+#   4. When the run finishes, download the "pro-fincalc-release-apk"
+#      artifact (app-release.apk) and install it on the phone.
 # Notes:
-#   - This builds the DEBUG apk only (no signing key needed).
+#   - This builds the SIGNED RELEASE apk (v1.0.2, version code 3).
+#     Uptodown accepts APK only (no AAB) and needs a higher version code
+#     than the rejected v1.0.1 (code 2). The debug build is gone on purpose:
+#     a debuggable debug-signed APK was the #1 defect in the rejection.
 #   - Project facts: AGP 8.5.2, Gradle 8.7, Java/Kotlin JVM 17,
 #     compileSdk/targetSdk 34, minSdk 26, applicationId com.fincalc.app,
-#     version 1.0.0 (code 1).
+#     version 1.0.2 (code 3).
 
 name: Build APK
 
@@ -58,12 +65,31 @@ jobs:
         with:
           gradle-version: "8.7"
 
-      - name: Build debug APK
-        run: gradle :app:assembleDebug --stacktrace
+      - name: Set up release signing
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then echo "::error::KEYSTORE_BASE64 secret is not set"; exit 1; fi
+          if [ -z "$KEYSTORE_PASSWORD" ] || [ -z "$KEY_ALIAS" ] || [ -z "$KEY_PASSWORD" ]; then echo "::error::One or more signing secrets are not set (KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD)"; exit 1; fi
+          mkdir -p keystore
+          echo "$KEYSTORE_BASE64" | base64 -d > keystore/release.keystore
+          cat > keystore.properties <<EOF
+          storeFile=$GITHUB_WORKSPACE/keystore/release.keystore
+          storePassword=$KEYSTORE_PASSWORD
+          keyAlias=$KEY_ALIAS
+          keyPassword=$KEY_PASSWORD
+          EOF
+          echo "Signing keystore and keystore.properties created."
+
+      - name: Build signed release APK
+        run: gradle :app:assembleRelease --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: fincalc-debug-apk
-          path: app/build/outputs/apk/debug/app-debug.apk
-          retention-days: 7
+          name: pro-fincalc-release-apk
+          path: app/build/outputs/apk/release/app-release.apk
+          retention-days: 30
