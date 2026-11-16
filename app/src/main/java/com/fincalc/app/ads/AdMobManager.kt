@@ -42,10 +42,10 @@ import kotlinx.coroutines.launch
  *   interstitial/rewarded IDs are used even in debug builds. Do NOT tap
  *   your own live ads while testing — AdMob treats it as invalid traffic.
  *
- * App ID note: the AndroidManifest uses the App ID candidate that is NOT
- * the one registered for EduMind AI. The user must confirm in AdMob that
- * it belongs to FinCalc before a production release; the other candidate
- * is recorded below as reference only.
+ * App ID note (v1.0.3, 2026-11-16): the AndroidManifest uses the App ID
+ * of the FinCalc app entry created in AdMob on asadaliarain081@gmail.com,
+ * and the three unit IDs below belong to that same app entry. The
+ * EduMind AI App ID candidate is recorded below as reference only.
  *
  * Ad-load failures (v1.0.2, 2026-11-16): every load failure is now logged
  * with its error code/message (filter logcat for FinCalcAds) and retried
@@ -56,17 +56,21 @@ object AdMobManager {
 
     private const val TAG = "FinCalcAds"
 
-    // Production Ad Unit IDs (supplied in the FinCalc master prompt).
-    private const val INTERSTITIAL_ID = "ca-app-pub-4510714397469784/7398560475"
-    private const val REWARDED_ID = "ca-app-pub-4510714397469784/2417696533"
+    // Production Ad Unit IDs — created fresh in AdMob under the FinCalc
+    // app (asadaliarain081@gmail.com), 2026-11-16 (v1.0.3). All three
+    // belong to the same FinCalc app entry as the App ID in the manifest.
+    private const val INTERSTITIAL_ID = "ca-app-pub-4510714397469784/8671860101"
+    private const val REWARDED_ID = "ca-app-pub-4510714397469784/4807977573"
 
-    // Banner Ad Unit ID (supplied by the user, 2026-11-14).
-    private const val BANNER_ID = "ca-app-pub-4510714397469784/1975439878"
+    // Banner Ad Unit ID — created fresh in AdMob under the FinCalc app,
+    // 2026-11-16 (v1.0.3). Replaces the banner unit supplied by the user
+    // on 2026-11-16, which belonged to a different app entry.
+    private const val BANNER_ID = "ca-app-pub-4510714397469784/3059781636"
 
     /** Banner unit for the BannerAd composable. */
     val bannerAdUnitId: String get() = BANNER_ID
 
-    // Reference only: the second App ID candidate from the master prompt.
+    // Reference only: the EduMind AI App ID from the master prompt.
     // It is NOT used anywhere — see the manifest note.
     @Suppress("unused")
     private const val OTHER_APP_ID_CANDIDATE = "ca-app-pub-4510714397469784~5758175741"
