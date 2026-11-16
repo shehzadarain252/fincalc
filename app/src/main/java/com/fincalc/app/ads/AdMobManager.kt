@@ -2,6 +2,7 @@ package com.fincalc.app.ads
 
 import android.app.Activity
 import android.content.Context
+import android.util.Log
 import com.fincalc.app.data.SettingsStore
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
@@ -17,6 +18,8 @@ import com.google.android.ump.ConsentRequestParameters
 import com.google.android.ump.UserMessagingPlatform
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
@@ -43,8 +46,15 @@ import kotlinx.coroutines.launch
  * the one registered for EduMind AI. The user must confirm in AdMob that
  * it belongs to FinCalc before a production release; the other candidate
  * is recorded below as reference only.
+ *
+ * Ad-load failures (v1.0.2, 2026-11-16): every load failure is now logged
+ * with its error code/message (filter logcat for FinCalcAds) and retried
+ * with backoff — a single failed load no longer means no ads for the
+ * whole session. Consent is determined BEFORE MobileAds is initialised.
  */
 object AdMobManager {
+
+    private const val TAG = "FinCalcAds"
 
     // Production Ad Unit IDs (supplied in the FinCalc master prompt).
     private const val INTERSTITIAL_ID = "ca-app-pub-4510714397469784/7398560475"
@@ -70,14 +80,60 @@ object AdMobManager {
     private const val WINDOW_MS = 30 * 60 * 1000L
     private const val MAX_PER_WINDOW = 3
 
+    // Retry with backoff after a load failure (v1.0.2): delays in ms.
+    private val RETRY_DELAYS_MS = longArrayOf(5_000L, 15_000L, 30_000L, 60_000L, 120_000L)
+    private const val MAX_RETRY_ATTEMPTS = 5
+
     private var interstitial: InterstitialAd? = null
     private var rewarded: RewardedAd? = null
     private var initialized = false
+    private var appContext: Context? = null
+    private var interstitialRetries = 0
+    private var rewardedRetries = 0
+    private var interstitialRetryPending = false
+    private var rewardedRetryPending = false
+    private val retryScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+
+    /**
+     * Consent-first entry point (v1.0.2). Call this from MainActivity
+     * onCreate INSTEAD of init(): it requests the UMP consent info update,
+     * shows the consent form if required, and only then initialises
+     * MobileAds when ads may be requested. No ad request fires before
+     * consent is determined. [onDone] always runs.
+     */
+    fun initializeAfterConsent(activity: Activity, onDone: () -> Unit = {}) {
+        val params = ConsentRequestParameters.Builder().build()
+        val consentInfo = UserMessagingPlatform.getConsentInformation(activity)
+        consentInfo.requestConsentInfoUpdate(
+            activity, params,
+            {
+                UserMessagingPlatform.loadAndShowConsentFormIfRequired(activity) { _ ->
+                    if (consentInfo.canRequestAds()) {
+                        Log.i(TAG, "Consent determined: ads allowed, initialising MobileAds")
+                        init(activity)
+                    } else {
+                        Log.i(TAG, "Consent determined: ads NOT allowed, skipping MobileAds init")
+                    }
+                    onDone()
+                }
+            },
+            { error ->
+                // Consent info update failed (e.g. no network). Fall back to
+                // the stored consent state: initialise only if ads may be
+                // requested, and log the failure for diagnosis.
+                Log.w(TAG, "Consent info update failed: code=${error.errorCode} message=${error.message}")
+                if (consentInfo.canRequestAds()) init(activity)
+                onDone()
+            }
+        )
+    }
 
     fun init(context: Context) {
         if (initialized) return
         initialized = true
+        appContext = context.applicationContext
         MobileAds.initialize(context) {
+            Log.i(TAG, "MobileAds initialised")
             loadInterstitial(context)
             loadRewarded(context)
         }
@@ -105,13 +161,42 @@ object AdMobManager {
     // ---------- Interstitial ----------
 
     private fun loadInterstitial(context: Context) {
+        val ctx = appContext ?: context.applicationContext
         InterstitialAd.load(
-            context, interstitialId, AdRequest.Builder().build(),
+            ctx, interstitialId, AdRequest.Builder().build(),
             object : InterstitialAdLoadCallback() {
-                override fun onAdLoaded(ad: InterstitialAd) { interstitial = ad }
-                override fun onAdFailedToLoad(error: LoadAdError) { interstitial = null }
+                override fun onAdLoaded(ad: InterstitialAd) {
+                    interstitial = ad
+                    interstitialRetries = 0
+                    Log.i(TAG, "Interstitial loaded")
+                }
+
+                override fun onAdFailedToLoad(error: LoadAdError) {
+                    interstitial = null
+                    Log.w(TAG, "Interstitial failed to load: code=${error.code} " +
+                        "message=${error.message} domain=${error.domain}")
+                    scheduleInterstitialRetry(ctx)
+                }
             }
         )
+    }
+
+    private fun scheduleInterstitialRetry(context: Context) {
+        if (interstitialRetryPending) return
+        if (interstitialRetries >= MAX_RETRY_ATTEMPTS) {
+            Log.w(TAG, "Interstitial retry limit reached ($MAX_RETRY_ATTEMPTS attempts); " +
+                "no further retries this session")
+            return
+        }
+        interstitialRetryPending = true
+        val delayMs = RETRY_DELAYS_MS[interstitialRetries.coerceIn(0, RETRY_DELAYS_MS.lastIndex)]
+        interstitialRetries++
+        Log.i(TAG, "Scheduling interstitial retry #${interstitialRetries} in ${delayMs}ms")
+        retryScope.launch {
+            delay(delayMs)
+            interstitialRetryPending = false
+            loadInterstitial(context)
+        }
     }
 
     /** Call after every completed calculation. */
@@ -141,7 +226,13 @@ object AdMobManager {
                 now - lastShown >= COOLDOWN_MS &&
                 windowCountNow < MAX_PER_WINDOW
             val ad = interstitial
-            if (!eligible || ad == null) {
+            if (!eligible) {
+                Log.d(TAG, "Interstitial not eligible: calcs=$count lastShown=${now - lastShown}ms ago window=$windowCountNow")
+                activity.runOnUiThread { onFinished() }
+                return@launch
+            }
+            if (ad == null) {
+                Log.w(TAG, "Interstitial eligible but no ad loaded (calcs=$count); retry is scheduled")
                 activity.runOnUiThread { onFinished() }
                 return@launch
             }
@@ -160,6 +251,7 @@ object AdMobManager {
                 }
 
                 override fun onAdFailedToShowFullScreenContent(error: AdError) {
+                    Log.w(TAG, "Interstitial failed to show: code=${error.code} message=${error.message}")
                     loadInterstitial(activity)
                     onFinished()
                 }
@@ -171,13 +263,42 @@ object AdMobManager {
     // ---------- Rewarded ----------
 
     private fun loadRewarded(context: Context) {
+        val ctx = appContext ?: context.applicationContext
         RewardedAd.load(
-            context, rewardedId, AdRequest.Builder().build(),
+            ctx, rewardedId, AdRequest.Builder().build(),
             object : RewardedAdLoadCallback() {
-                override fun onAdLoaded(ad: RewardedAd) { rewarded = ad }
-                override fun onAdFailedToLoad(error: LoadAdError) { rewarded = null }
+                override fun onAdLoaded(ad: RewardedAd) {
+                    rewarded = ad
+                    rewardedRetries = 0
+                    Log.i(TAG, "Rewarded ad loaded")
+                }
+
+                override fun onAdFailedToLoad(error: LoadAdError) {
+                    rewarded = null
+                    Log.w(TAG, "Rewarded ad failed to load: code=${error.code} " +
+                        "message=${error.message} domain=${error.domain}")
+                    scheduleRewardedRetry(ctx)
+                }
             }
         )
+    }
+
+    private fun scheduleRewardedRetry(context: Context) {
+        if (rewardedRetryPending) return
+        if (rewardedRetries >= MAX_RETRY_ATTEMPTS) {
+            Log.w(TAG, "Rewarded retry limit reached ($MAX_RETRY_ATTEMPTS attempts); " +
+                "no further retries this session")
+            return
+        }
+        rewardedRetryPending = true
+        val delayMs = RETRY_DELAYS_MS[rewardedRetries.coerceIn(0, RETRY_DELAYS_MS.lastIndex)]
+        rewardedRetries++
+        Log.i(TAG, "Scheduling rewarded retry #${rewardedRetries} in ${delayMs}ms")
+        retryScope.launch {
+            delay(delayMs)
+            rewardedRetryPending = false
+            loadRewarded(context)
+        }
     }
 
     fun isRewardedReady(): Boolean = rewarded != null
@@ -190,6 +311,7 @@ object AdMobManager {
     fun showRewarded(activity: Activity, onReward: () -> Unit, onClosed: () -> Unit) {
         val ad = rewarded
         if (ad == null) {
+            Log.i(TAG, "Rewarded requested but no ad loaded; exporting without an ad")
             onClosed()
             loadRewarded(activity)
             return
@@ -201,6 +323,7 @@ object AdMobManager {
             }
 
             override fun onAdFailedToShowFullScreenContent(error: AdError) {
+                Log.w(TAG, "Rewarded ad failed to show: code=${error.code} message=${error.message}")
                 loadRewarded(activity)
                 onClosed()
             }
