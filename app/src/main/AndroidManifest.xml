@@ -18,15 +18,18 @@
         tools:targetApi="34">
 
         <!-- Google Mobile Ads (AdMob) App ID for FinCalc.
-             NOTE (master prompt §11): two App ID candidates were supplied.
-             This manifest uses the candidate that is NOT the one registered
-             for EduMind AI. The user MUST confirm in their AdMob account
-             that this App ID belongs to the FinCalc app before a production
-             release — if it is the wrong one, ads will not fill. The other
-             candidate is recorded in AdMobManager.kt as reference only. -->
+             v1.0.3 (2026-11-16): this is the App ID of the FinCalc app
+             entry created in AdMob on asadaliarain081@gmail.com, under
+             which the three new ad units (Interstitial, Rewarded,
+             Banner) were created. The previous App ID belonged to an
+             "Apps to confirm" entry that could not be set up (the app
+             is not on Google Play, and no Play Store upload is wanted),
+             so the units would not have served under it. The EduMind AI
+             App ID candidate is recorded in AdMobManager.kt as
+             reference only. -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-4510714397469784~6495647157" />
+            android:value="ca-app-pub-4510714397469784~7265465000" />
 
         <!-- AdMob (play-services-ads) and Firebase Analytics
              (play-services-measurement-api) both declare the
