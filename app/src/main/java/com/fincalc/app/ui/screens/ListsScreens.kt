@@ -122,7 +122,7 @@ fun HistoryScreen(navController: NavController, dao: FinCalcDao) {
                             type = "text/plain"
                             putExtra(
                                 Intent.EXTRA_TEXT,
-                                "${item.calcTitle}\n${item.summary}\n${formatTime(item.timestamp)}\n— Calculated with FinCalc"
+                                "${item.calcTitle}\n${item.summary}\n${formatTime(item.timestamp)}\n— Calculated with Pro FinCalc"
                             )
                         }
                         context.startActivity(Intent.createChooser(intent, "Share calculation"))

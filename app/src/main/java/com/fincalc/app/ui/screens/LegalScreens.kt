@@ -26,6 +26,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.fincalc.app.BuildConfig
 
 @Composable
 fun LegalPage(title: String, body: String) {
@@ -45,23 +46,23 @@ fun AboutScreen() {
     Column(
         Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp)
     ) {
-        Text("FinCalc", fontSize = 30.sp, fontWeight = FontWeight.Bold,
+        Text("Pro FinCalc", fontSize = 30.sp, fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(top = 16.dp))
         Text("Smart Financial Calculators for Everyone", fontSize = 15.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(Modifier.height(16.dp))
         Text(
-            "FinCalc is a powerful and easy-to-use finance calculator app that helps you " +
+            "Pro FinCalc is a powerful and easy-to-use finance calculator app that helps you " +
                 "make smart financial decisions. From loans and taxes to investments and " +
-                "budgeting, FinCalc has everything you need in one place.\n\n" +
-                "• 60 calculators across 6 categories: loans & mortgages, tax & salary, " +
+                "budgeting, Pro FinCalc has everything you need in one place.\n\n" +
+                "• 90 calculators across 6 categories: loans & mortgages, tax & salary, " +
                 "investments, personal finance, business, and currency & daily tools.\n" +
                 "• Every calculation works offline (except live currency rates).\n" +
                 "• Save calculations to history, mark favorites, and export results as PDF.\n" +
                 "• No account or login needed — your data stays on your device.\n\n" +
-                "Version 1.0.0\n\n" +
-                "© 2026 FinCalc. All rights reserved.",
+                "Version ${BuildConfig.VERSION_NAME}\n\n" +
+                "© 2026 Pro FinCalc. All rights reserved.",
             fontSize = 14.sp, lineHeight = 21.sp
         )
         Spacer(Modifier.height(24.dp))
@@ -70,30 +71,36 @@ fun AboutScreen() {
 
 private const val PRIVACY_TEXT = """Last updated: November 2026
 
-FinCalc respects your privacy. This policy explains what the app collects and how it is used.
+Pro FinCalc respects your privacy. This policy explains what the app collects, how it is used, and the choices you have.
 
-1. Information we collect
-FinCalc does not ask you to create an account, and we do not collect your name, email address, contacts, location, or financial account details. Calculations you enter stay on your device in local storage (history and favorites) unless you delete them.
+1. No account, no personal data
+Pro FinCalc does not ask you to create an account, and we do not collect your name, email address, phone number, contacts, location, photos, or financial account details. You can use every calculator without signing in.
 
-2. Advertising
-FinCalc shows ads through Google AdMob. AdMob and its partners may collect advertising identifiers and usage data to serve ads, including personalized ads where you have consented. You can change your advertising consent at any time in Settings → Privacy Settings. We never sell personal information.
+2. Data stored on your device only
+Calculations you enter, your history and your favorites are stored only on your device (local database and settings storage). They are never uploaded to a server, because we operate no servers for this app. Uninstalling the app, or using Settings → Clear App Data, permanently deletes everything stored locally.
 
-3. Analytics and crash reports
+3. Advertising
+Pro FinCalc shows ads through Google AdMob. AdMob and its partners may collect advertising identifiers and usage data to serve ads, including personalized ads where you have consented. You can change your advertising consent at any time in Settings → Privacy Settings. We never sell personal information. Ads keep Pro FinCalc free; no personal data is sold to advertisers.
+
+4. Analytics and crash reports
 The app uses Firebase Analytics and Crashlytics to understand anonymous usage (for example, which calculators are popular) and to fix crashes. This data is anonymous and is not linked to your identity.
 
-4. Currency rates
-The Currency Converter fetches exchange rates from a public rates service (open.er-api.com, with Frankfurter as a fallback). Your request goes to that service; no personal information is sent with it.
+5. Currency rates
+The Currency Converter fetches exchange rates from a public rates service (open.er-api.com, with Frankfurter as a fallback). Your request goes to that service to get the rate you asked for; no personal information is sent with it.
 
-5. Third-party services
+6. Permissions
+Pro FinCalc requests only two permissions, both genuinely needed: Internet (to fetch live currency rates and to load ads) and network state (to check whether the device is online before fetching rates). The app does not request contacts, location, camera, microphone, or storage permissions.
+
+7. Third-party services
 Google AdMob, Google User Messaging Platform (consent), and Firebase (Analytics and Crashlytics) process data under their own privacy policies.
 
-6. Children's privacy
-FinCalc is not directed at children under 13, and we do not knowingly collect information from children.
+8. Children's privacy
+Pro FinCalc is not directed at children under 13, and we do not knowingly collect information from children.
 
-7. Your choices
-You can clear all locally stored data in Settings → Clear App Data, and change ad consent in Settings → Privacy Settings. Uninstalling the app removes all local data.
+9. Your choices and rights
+You can clear all locally stored data in Settings → Clear App Data, change ad consent in Settings → Privacy Settings, and delete the app at any time to remove all local data. Because no account exists and no personal data is collected, there is no account to delete and no personal data to request a copy of.
 
-8. Changes
+10. Changes
 If this policy changes, the new version will be shown in the app.
 
 Contact: $FEEDBACK_FORM_URL"""
@@ -101,34 +108,37 @@ Contact: $FEEDBACK_FORM_URL"""
 private const val TERMS_TEXT = """Last updated: November 2026
 
 1. Acceptance
-By using FinCalc you agree to these Terms & Conditions. If you do not agree, please do not use the app.
+By using Pro FinCalc you agree to these Terms & Conditions. If you do not agree, please do not use the app.
 
-2. What FinCalc does
-FinCalc provides 60 financial calculators for education and planning. Results are estimates produced from the figures you enter and the formulas shown on each result screen.
+2. What Pro FinCalc does
+Pro FinCalc provides 90 financial calculators for education and planning. Results are estimates produced from the figures you enter and the formulas shown on each result screen. No account or login is required.
 
 3. Accuracy
 We work hard to keep formulas and tax tables current, but rates, tax law and exchange rates change. Always verify important figures with the relevant authority, lender or a qualified professional before acting on them.
 
 4. Not professional advice
-FinCalc does not provide financial, tax, legal, investment or lending advice. See the Financial Disclaimer in the app.
+Pro FinCalc does not provide financial, tax, legal, investment or lending advice. See the Financial Disclaimer in the app.
 
 5. Acceptable use
-Use the app lawfully and do not attempt to disrupt it, reverse-engineer it, or misuse its advertising features (for example, by clicking ads repeatedly).
+Use the app lawfully and for personal planning only. Do not attempt to disrupt the app, reverse-engineer it, extract its data, or misuse its advertising features (for example, by clicking ads repeatedly or using automated tools to generate ad impressions). Do not use the app for any illegal purpose.
 
 6. Advertising
-The app displays third-party ads. FinCalc is not responsible for the content of those ads or for any product or service they promote.
+The app displays third-party ads. Pro FinCalc is not responsible for the content of those ads or for any product or service they promote.
 
-7. Liability
-To the maximum extent allowed by law, FinCalc and its developer are not liable for any loss arising from reliance on the app's estimates or from third-party content.
+7. Service limitations
+Pro FinCalc is provided "as is" without warranties of any kind. Features, formulas, tax tables and exchange-rate sources may change over time, and the app may be updated or discontinued at any time. Calculations require the figures you enter; incorrect inputs produce incorrect results.
 
-8. Changes
+8. Liability
+To the maximum extent allowed by law, Pro FinCalc and its developer are not liable for any loss arising from reliance on the app's estimates, from third-party content, or from the unavailability of live currency rates.
+
+9. Changes
 Features, formulas and these terms may change over time. Continued use of the app after a change means you accept the updated terms.
 
 Contact: $FEEDBACK_FORM_URL"""
 
 private const val DISCLAIMER_TEXT = """Financial Disclaimer
 
-FinCalc provides estimates and educational calculations only. Nothing in this app is financial, tax, legal, investment or lending advice, and nothing here creates a professional relationship between you and the developer.
+Pro FinCalc provides estimates and educational calculations only. Nothing in this app is financial, tax, legal, investment or lending advice, and nothing here creates a professional relationship between you and the developer.
 
 • Loan, mortgage and payoff figures are estimates based on the numbers you enter; actual lender terms, fees and rates may differ.
 • Tax figures are estimates based on published federal brackets and standard deductions; they do not account for your full tax situation, credits, state rules or local taxes. Consult the IRS or a qualified tax professional before filing.
@@ -139,6 +149,39 @@ Always consult a qualified professional before making financial decisions. The d
 
 @Composable
 fun PrivacyScreen() = LegalPage("Privacy Policy", PRIVACY_TEXT)
+
+private const val DATA_SAFETY_TEXT = """Last updated: November 2026
+
+This page explains, in plain language, what Pro FinCalc collects, shares, and protects. It matches the app's real behaviour — nothing here is collected or shared beyond what is listed.
+
+1. No account — so no account data
+Pro FinCalc has no accounts, no login, and no sign-up. Because there is no account, there is nothing to delete: no account-deletion flow is needed, and no personal profile exists anywhere.
+
+2. What the app collects
+Pro FinCalc itself collects no personal data: no name, email address, phone number, contacts, location, photos, or financial account details. The numbers you type into a calculator are used only to compute the result on your device.
+
+3. What is stored — on your device only
+Your calculation history, favorites, settings (theme, currency, decimal precision) and the last saved currency rates are stored only on your device, in local storage. They are never sent to a server. Settings → Clear App Data deletes all of it. Uninstalling the app deletes it too.
+
+4. What is shared with third parties
+• Google AdMob (advertising): may collect the advertising identifier and coarse usage data to serve ads. No personal information is sent by the app itself.
+• Firebase Analytics and Crashlytics: anonymous usage statistics and crash reports. This data cannot identify you.
+• Currency-rate services (open.er-api.com, Frankfurter): receive only the currency pair you ask about, so they can return the rate. No personal information is sent.
+• No other data is shared with any other party.
+
+5. Permissions
+Pro FinCalc uses only Internet access (for live currency rates and ads) and network-state access (to check if the device is online). It does not request contacts, location, camera, microphone, or storage permissions.
+
+6. Security
+Because all of your data stays on your device, there is no server copy to protect or to breach. Data sent to third-party services travels over encrypted (HTTPS) connections.
+
+7. Your choices
+Clear all stored data in Settings → Clear App Data. Change advertising consent in Settings → Privacy Settings. Delete the app at any time to remove everything stored locally. If you have a question about data safety, contact us through the feedback form.
+
+Contact: $FEEDBACK_FORM_URL"""
+
+@Composable
+fun DataSafetyScreen() = LegalPage("Data Safety Information", DATA_SAFETY_TEXT)
 
 @Composable
 fun TermsScreen() = LegalPage("Terms & Conditions", TERMS_TEXT)
@@ -185,10 +228,10 @@ private val FAQS = listOf(
         "Live mid-market rates from ExchangeRate-API's free open endpoint (open.er-api.com), with Frankfurter (ECB rates) as a fallback. Rates update daily; the app shows the update time. If both sources are unreachable, the converter says so — it never invents a rate.",
     "How accurate are the calculators?" to
         "Each result shows the formula it used, so you can check it. Results are only as accurate as the numbers you enter — double-check inputs for big decisions.",
-    "What data does FinCalc collect?" to
+    "What data does Pro FinCalc collect?" to
         "Almost none. No account is needed. Calculations stay on your device. AdMob may collect advertising identifiers for ads, and Firebase Analytics collects anonymous usage statistics. See the Privacy Policy for details.",
     "Why do I see ads, and can I remove them?" to
-        "Ads keep FinCalc free. Interstitial ads appear only after every 5th completed calculation, at a natural pause — never while you are entering numbers. Watching a short rewarded ad is optional and unlocks PDF export; basic calculations are always free."
+        "Ads keep Pro FinCalc free. Interstitial ads appear only after every 5th completed calculation, at a natural pause — never while you are entering numbers. Watching a short rewarded ad is optional and unlocks PDF export; basic calculations are always free."
 )
 
 @Composable

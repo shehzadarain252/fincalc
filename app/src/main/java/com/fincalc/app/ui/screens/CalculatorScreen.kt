@@ -28,6 +28,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -43,6 +44,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.fincalc.app.ScreenBackAction
 import com.fincalc.app.ads.AdMobManager
 import com.fincalc.app.data.CalcResult
 import com.fincalc.app.data.CalculatorDef
@@ -123,6 +125,12 @@ fun CalculatorContent(
         }
     }
     BackHandler(enabled = true) { handleBack() }
+    // Hand the same back handling to the toolbar back button in MainActivity
+    // (it otherwise bypasses handleBack and the interstitial never fires).
+    DisposableEffect(Unit) {
+        ScreenBackAction.onBack = { handleBack() }
+        onDispose { ScreenBackAction.onBack = null }
+    }
 
     fun resultText(r: CalcResult): String = buildString {
         appendLine("${def.title}")
@@ -141,7 +149,7 @@ fun CalculatorContent(
             val intent = Intent(Intent.ACTION_SEND).apply {
                 type = "application/pdf"
                 putExtra(Intent.EXTRA_STREAM, uri)
-                putExtra(Intent.EXTRA_SUBJECT, "${def.title} — FinCalc")
+                putExtra(Intent.EXTRA_SUBJECT, "${def.title} — Pro FinCalc")
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
             context.startActivity(Intent.createChooser(intent, "Export PDF"))
@@ -223,13 +231,13 @@ fun CalculatorContent(
                 result = r,
                 onCopy = {
                     val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                    cm.setPrimaryClip(ClipData.newPlainText("FinCalc result", resultText(r)))
+                    cm.setPrimaryClip(ClipData.newPlainText("Pro FinCalc result", resultText(r)))
                     Toast.makeText(context, "Result copied.", Toast.LENGTH_SHORT).show()
                 },
                 onShare = {
                     val intent = Intent(Intent.ACTION_SEND).apply {
                         type = "text/plain"
-                        putExtra(Intent.EXTRA_TEXT, resultText(r) + "\n— Calculated with FinCalc")
+                        putExtra(Intent.EXTRA_TEXT, resultText(r) + "\n— Calculated with Pro FinCalc")
                     }
                     context.startActivity(Intent.createChooser(intent, "Share result"))
                 },
@@ -322,6 +330,23 @@ fun CurrencyConverterScreen(
     }
     LaunchedEffect(Unit) { loadRates() }
 
+    // Same back handling as the generic calculator screen: leaving a shown
+    // result may show an interstitial at this natural transition.
+    fun handleBack() {
+        if (result != null) {
+            AdMobManager.maybeShowInterstitial(context as android.app.Activity) {
+                navController.navigateUp()
+            }
+        } else {
+            navController.navigateUp()
+        }
+    }
+    BackHandler(enabled = true) { handleBack() }
+    DisposableEffect(Unit) {
+        ScreenBackAction.onBack = { handleBack() }
+        onDispose { ScreenBackAction.onBack = null }
+    }
+
     fun exportPdf(r: CalcResult) {
         val uri = PdfExport.export(
             context, def.title, "${r.subtitle}: ${r.title}",
@@ -408,7 +433,7 @@ fun CurrencyConverterScreen(
                     val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                     cm.setPrimaryClip(
                         ClipData.newPlainText(
-                            "FinCalc result",
+                            "Pro FinCalc result",
                             "${r.subtitle}: ${r.title}" +
                                 (calcTime?.let { "\nCalculated: ${Format.dateTime(it)}" } ?: "")
                         )
@@ -422,7 +447,7 @@ fun CurrencyConverterScreen(
                             Intent.EXTRA_TEXT,
                             "${r.subtitle}: ${r.title}" +
                                 (calcTime?.let { "\nCalculated: ${Format.dateTime(it)}" } ?: "") +
-                                "\n— Converted with FinCalc"
+                                "\n— Converted with Pro FinCalc"
                         )
                     }
                     context.startActivity(Intent.createChooser(intent, "Share result"))

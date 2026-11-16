@@ -35,6 +35,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.fincalc.app.BuildConfig
 import com.fincalc.app.ads.AdMobManager
 import com.fincalc.app.data.FinCalcDao
 import com.fincalc.app.data.SettingsStore
@@ -100,12 +101,14 @@ fun SettingsScreen(navController: NavController, dao: FinCalcDao, store: Setting
                     Toast.makeText(context, "Privacy choices updated.", Toast.LENGTH_SHORT).show()
                 }
             })
+        RowItem("Data Safety Information", "What data is collected, shared and protected",
+            onClick = { navController.navigate("datasafety") })
         RowItem("Clear App Data", "Delete history, favorites and settings",
             onClick = { confirmClear = true })
         Spacer(Modifier.height(8.dp))
         Text("About", fontSize = 13.sp, fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary)
-        RowItem("About App", "Version 1.0.0", onClick = { navController.navigate("about") })
+        RowItem("About App", "Version ${BuildConfig.VERSION_NAME}", onClick = { navController.navigate("about") })
         RowItem("Contact Support", "Send feedback", onClick = {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(FEEDBACK_FORM_URL))
             context.startActivity(intent)
