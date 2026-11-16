@@ -18,3 +18,7 @@ local.properties
 # local.properties is gitignored above.
 # Firebase + AdMob IDs live in app code (AdMobManager.kt / AndroidManifest.xml)
 # and in app/google-services.json — never copy them into docs or chat.
+
+# Release signing (v1.0.2) — NEVER commit the keystore or its passwords.
+/keystore/
+keystore.properties
