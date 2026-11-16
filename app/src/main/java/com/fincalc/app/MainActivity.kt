@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Help
 import androidx.compose.material.icons.filled.Mail
+import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -68,6 +69,7 @@ import com.fincalc.app.ui.screens.AllCategoriesScreen
 import com.fincalc.app.ui.screens.CalculatorScreen
 import com.fincalc.app.ui.screens.CategoryScreen
 import com.fincalc.app.ui.screens.ContactScreen
+import com.fincalc.app.ui.screens.DataSafetyScreen
 import com.fincalc.app.ui.screens.DisclaimerScreen
 import com.fincalc.app.ui.screens.FaqScreen
 import com.fincalc.app.ui.screens.FavoritesScreen
@@ -83,8 +85,10 @@ import kotlinx.coroutines.launch
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Privacy consent (UMP) on first launch — required before ads.
-        AdMobManager.requestConsent(this)
+        // Privacy consent (UMP) FIRST — ads are only initialised after
+        // consent is determined (see AdMobManager.initializeAfterConsent).
+        // No ad request may fire before this completes.
+        AdMobManager.initializeAfterConsent(this)
         setContent {
             val store = remember { SettingsStore(this) }
             val darkMode by store.darkMode.collectAsState(initial = false)
@@ -94,6 +98,17 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+}
+
+/**
+ * Lets a calculator screen hand its back handling to the toolbar back
+ * button in MainActivity. A calculator registers its handleBack (which may
+ * show an interstitial at a natural transition, only when a result is
+ * showing) while it is composed and clears it on dispose. The toolbar
+ * falls back to plain navigateUp() when no screen has registered one.
+ */
+object ScreenBackAction {
+    var onBack: (() -> Unit)? = null
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -107,7 +122,7 @@ fun FinCalcNav(store: SettingsStore, dao: com.fincalc.app.data.FinCalcDao) {
     val darkMode by store.darkMode.collectAsState(initial = false)
 
     val title = when {
-        route == "home" -> "FinCalc"
+        route == "home" -> "Pro FinCalc"
         route == "categories" -> "All Categories"
         route.startsWith("category/") -> {
             val id = route.substringAfter("category/")
@@ -123,8 +138,9 @@ fun FinCalcNav(store: SettingsStore, dao: com.fincalc.app.data.FinCalcDao) {
         route == "terms" -> "Terms & Conditions"
         route == "disclaimer" -> "Financial Disclaimer"
         route == "contact" -> "Contact Us"
+        route == "datasafety" -> "Data Safety Information"
         route == "faq" -> "FAQ"
-        else -> "FinCalc"
+        else -> "Pro FinCalc"
     }
     val showBottomBar = route in listOf("home", "favorites", "history", "settings")
     val isHome = route == "home"
@@ -142,7 +158,7 @@ fun FinCalcNav(store: SettingsStore, dao: com.fincalc.app.data.FinCalcDao) {
         drawerContent = {
             ModalDrawerSheet {
                 Column(Modifier.padding(16.dp)) {
-                    Text("FinCalc", fontSize = 24.sp, fontWeight = FontWeight.Bold,
+                    Text("Pro FinCalc", fontSize = 24.sp, fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary)
                     Text("Smart Financial Tools", fontSize = 13.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -156,6 +172,7 @@ fun FinCalcNav(store: SettingsStore, dao: com.fincalc.app.data.FinCalcDao) {
                         "Privacy Policy" to "privacy" to Icons.Filled.PrivacyTip,
                         "Terms & Conditions" to "terms" to Icons.Filled.Description,
                         "Financial Disclaimer" to "disclaimer" to Icons.Filled.Warning,
+                        "Data Safety" to "datasafety" to Icons.Filled.Shield,
                         "Contact Us" to "contact" to Icons.Filled.Mail,
                         "FAQ" to "faq" to Icons.Filled.Help
                     )
@@ -197,7 +214,13 @@ fun FinCalcNav(store: SettingsStore, dao: com.fincalc.app.data.FinCalcDao) {
                                 Icon(Icons.Filled.Menu, contentDescription = "Menu")
                             }
                         } else {
-                            IconButton(onClick = { navController.navigateUp() }) {
+                            // Route through the current screen's back handling
+                            // (a calculator may show an interstitial at this
+                            // natural transition) instead of bypassing it.
+                            IconButton(onClick = {
+                                ScreenBackAction.onBack?.invoke()
+                                    ?: navController.navigateUp()
+                            }) {
                                 Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
                             }
                         }
@@ -282,6 +305,7 @@ fun FinCalcNav(store: SettingsStore, dao: com.fincalc.app.data.FinCalcDao) {
                 composable("terms") { TermsScreen() }
                 composable("disclaimer") { DisclaimerScreen() }
                 composable("contact") { ContactScreen() }
+                composable("datasafety") { DataSafetyScreen() }
                 composable("faq") { FaqScreen() }
             }
         }
