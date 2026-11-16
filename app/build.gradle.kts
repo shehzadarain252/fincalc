@@ -14,8 +14,8 @@ android {
         applicationId = "com.fincalc.app"
         minSdk = 26
         targetSdk = 34
-        versionCode = 2
-        versionName = "1.0.1"
+        versionCode = 3
+        versionName = "1.0.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -23,8 +23,31 @@ android {
         }
     }
 
+    // Release signing (added 2026-11-16, v1.0.2): the release keystore is
+    // NEVER committed. CI creates keystore.properties from GitHub secrets
+    // (KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD) before
+    // building; local builds read the same file from the project root.
+    // Without keystore.properties the release build is left unsigned.
+    val keystorePropsFile = rootProject.file("keystore.properties")
+    val keystoreProps = java.util.Properties()
+    if (keystorePropsFile.exists()) {
+        keystoreProps.load(java.io.FileInputStream(keystorePropsFile))
+    }
+
+    signingConfigs {
+        create("release") {
+            keystoreProps["storeFile"]?.let { storeFile = file(it.toString()) }
+            keystoreProps["storePassword"]?.let { storePassword = it.toString() }
+            keystoreProps["keyAlias"]?.let { keyAlias = it.toString() }
+            keystoreProps["keyPassword"]?.let { keyPassword = it.toString() }
+        }
+    }
+
     buildTypes {
         release {
+            if (keystorePropsFile.exists()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
