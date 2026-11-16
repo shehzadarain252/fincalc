@@ -101,5 +101,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: pro-fincalc-release-apk
-          path: app/build/outputs/apk/release/app-release.apk
+          # Glob: a signed release build outputs app-release.apk, an
+          # unsigned one app-release-unsigned.apk — upload whichever exists.
+          path: app/build/outputs/apk/release/*.apk
           retention-days: 30
