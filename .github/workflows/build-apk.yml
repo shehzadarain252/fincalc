@@ -1,0 +1,95 @@
+# Pro FinCalc — GitHub Actions cloud build (SIGNED RELEASE APK)
+#
+# Same pattern as the EduMind AI workflow (proven): this project has NO
+# gradlew / gradlew.bat and NO gradle-wrapper.jar, so "./gradlew
+# assembleDebug" fails. The workflow installs Gradle 8.7 itself and runs
+# the plain `gradle` command. Do NOT "fix" it by switching back to
+# ./gradlew unless the wrapper scripts + jar are added.
+#
+# How to use (after signing in to GitHub as shehzadarain252):
+#   1. Push this whole project to the GitHub repo (see .gitignore).
+#   2. GitHub > repo > Settings > Secrets and variables > Actions: set
+#      KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD
+#      (values are in keystore/credentials.txt on the build machine —
+#      NEVER commit that file or the keystore itself).
+#   3. GitHub > repo > Actions > "Build APK" > Run workflow (or push to main).
+#   4. When the run finishes, download the "pro-fincalc-release-apk"
+#      artifact (app-release.apk) and install it on the phone.
+# Notes:
+#   - This builds the SIGNED RELEASE apk (v1.0.2, version code 3).
+#     Uptodown accepts APK only (no AAB) and needs a higher version code
+#     than the rejected v1.0.1 (code 2). The debug build is gone on purpose:
+#     a debuggable debug-signed APK was the #1 defect in the rejection.
+#   - Project facts: AGP 8.5.2, Gradle 8.7, Java/Kotlin JVM 17,
+#     compileSdk/targetSdk 34, minSdk 26, applicationId com.fincalc.app,
+#     version 1.0.2 (code 3).
+
+name: Build APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out project
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          # 2026-11-14 fix: the action's default package list includes the
+          # obsolete "tools" package, which no longer exists in
+          # cmdline-tools 16.0 (all Build APK runs failed in this step with
+          # "Failed to find package 'tools'"). Pin cmdline-tools to 12.0
+          # (which still ships it) and install only platform-tools
+          # explicitly — the platform/build-tools install is the next step.
+          cmdline-tools-version: "12.0"
+          packages: platform-tools
+
+      - name: Install Android platform 34
+        run: |
+          sdkmanager "platforms;android-34" "build-tools;34.0.0" "platform-tools"
+
+      - name: Set up Gradle 8.7 (no wrapper in this project)
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: "8.7"
+
+      - name: Set up release signing
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then echo "::error::KEYSTORE_BASE64 secret is not set"; exit 1; fi
+          if [ -z "$KEYSTORE_PASSWORD" ] || [ -z "$KEY_ALIAS" ] || [ -z "$KEY_PASSWORD" ]; then echo "::error::One or more signing secrets are not set (KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD)"; exit 1; fi
+          mkdir -p keystore
+          echo "$KEYSTORE_BASE64" | base64 -d > keystore/release.keystore
+          cat > keystore.properties <<EOF
+          storeFile=$GITHUB_WORKSPACE/keystore/release.keystore
+          storePassword=$KEYSTORE_PASSWORD
+          keyAlias=$KEY_ALIAS
+          keyPassword=$KEY_PASSWORD
+          EOF
+          echo "Signing keystore and keystore.properties created."
+
+      - name: Build signed release APK
+        run: gradle :app:assembleRelease --stacktrace
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: pro-fincalc-release-apk
+          path: app/build/outputs/apk/release/app-release.apk
+          retention-days: 30

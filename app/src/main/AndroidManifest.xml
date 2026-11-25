@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Network (exchange rates only; all calculations work offline) -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <application
+        android:name=".FinCalcApp"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.FinCalc"
+        android:usesCleartextTraffic="false"
+        tools:targetApi="34">
+
+        <!-- Google Mobile Ads (AdMob) App ID for FinCalc.
+             v1.0.3 (2026-11-16): this is the App ID of the FinCalc app
+             entry created in AdMob on asadaliarain081@gmail.com, under
+             which the three new ad units (Interstitial, Rewarded,
+             Banner) were created. The previous App ID belonged to an
+             "Apps to confirm" entry that could not be set up (the app
+             is not on Google Play, and no Play Store upload is wanted),
+             so the units would not have served under it. The EduMind AI
+             App ID candidate is recorded in AdMobManager.kt as
+             reference only. -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-4510714397469784~7265465000" />
+
+        <!-- AdMob (play-services-ads) and Firebase Analytics
+             (play-services-measurement-api) both declare the
+             android.adservices.AD_SERVICES_CONFIG property, so the manifest
+             merger fails without this. tools:replace resolves the conflict
+             in favour of the AdMob value (both point at the same resource). -->
+        <property
+            android:name="android.adservices.AD_SERVICES_CONFIG"
+            android:resource="@xml/gma_ad_services_config"
+            tools:replace="android:resource" />
+
+        <activity
+            android:name=".MainActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden|uiMode"
+            android:exported="true"
+            android:theme="@style/Theme.FinCalc">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+    </application>
+</manifest>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- FinCalc theme: Material3 DayNight so the in-app Dark Mode toggle works
+         with the system / user setting. The Compose material3 library does
+         NOT provide this XML theme — that is why the app module depends on
+         com.google.android.material:material. -->
+    <style name="Theme.FinCalc" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/fincalc_blue</item>
+        <item name="colorPrimaryDark">@color/fincalc_blue_dark</item>
+        <item name="colorAccent">@color/fincalc_purple</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowBackground">@drawable/splash_background</item>
+    </style>
+</resources>

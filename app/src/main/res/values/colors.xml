@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- FinCalc brand colours: premium royal blue + purple on white,
+         matching the supplied design screenshots. -->
+    <color name="fincalc_blue">#1D4ED8</color>
+    <color name="fincalc_blue_dark">#1E3A8A</color>
+    <color name="fincalc_blue_deep">#17255A</color>
+    <color name="fincalc_purple">#7C3AED</color>
+    <color name="fincalc_purple_light">#A78BFA</color>
+    <color name="fincalc_gold">#F59E0B</color>
+    <color name="fincalc_green">#16A34A</color>
+    <color name="fincalc_background">#F4F6FB</color>
+    <color name="fincalc_card">#FFFFFF</color>
+    <color name="fincalc_text">#111827</color>
+    <color name="fincalc_text_secondary">#6B7280</color>
+</resources>
